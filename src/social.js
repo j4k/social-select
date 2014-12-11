@@ -4,15 +4,17 @@
     var pluginName = "socialSelect",
         defaults = {
           validAncestors: ['article', 'section'],
-          twitterTpl: "https://twitter.com/intent/tweet?text="{{text}}"&url={{url}}",
+          twitterTpl: "https://twitter.com/intent/tweet?text={{text}}&url={{url}}",
           twitterMessageLimit: 140,
-          emailHrefTemplate: "mailto:?subject={{subject}}&body="{{selection}}" {{url}}'"
+          emailHrefTemplate: "mailto:?subject={{subject}}&body={{selection}} {{url}}'"
         };
 
     // Set up vars
     var $body = $(document.body),
         $twitterEl,
-        $emailEl;
+        $emailEl,
+        // the template element
+        $selectionSharing = '<div>SocialSharingDiv</div>';
 
     function SocialSelect( element, options ) {
         this.element = element;
@@ -26,16 +28,16 @@
     }
 
     SocialSelect.prototype = {
-
+      
         init: function() {
-           if( !this.hasTouchScreen().bind(this) ) {
+           if( !this.hasTouchScreen() ) {
                 $body.append($selectionSharing);
                 $twitterEl = $('');
                 $emailEl = $('');
                 // set binds
-                $('body').on('keypress keydown', _.debounce(this.updateSelection, 50)); 
-                $('body').on('mouseup', _.debounce(this.updateSelection, 200));
-                $('body').on('mousedown', _.debounce(this.updateSelection, 50));
+                $('body').on('keypress keydown', _.debounce( this.updateSelection, 50) ); 
+                $('body').on('mouseup', _.debounce( this.updateSelection, 200) );
+                $('body').on('mousedown', _.debounce( this.updateSelection, 50) );
            }
         },
 
@@ -49,23 +51,34 @@
            if( selection && selection.rangeCount > 0 && selection.toString() ){
                range = selection.getRangeAt(0);
                twitterMessage = range.toString();
-
-               if(!$.fn.socialSelect.isValidSelection(range) ){
-                  hideSelection()
+              
+                console.log(twitterMessage);
+             
+               if( !this.isValidSelection(range) ){
+                  this.hideSelection()
                   return;
                }
            }
         },
 
-        isValidSelection = function(range){
+        isValidSelection: function( range ){
+            console.log( range );
+            // check whether or not we have a valid ancestor,
+            // check range
             return true;
         },
 
-        hideSelection = function(){
+        hideSelection: function(){
+            
+            console.log('this');
+          //return true;
+        },
+
+        showSelection: function(){
             return true;
         },
 
-        hasTouchScreen = function(){
+        hasTouchScreen: function(){
             return false;
         }
 
@@ -81,3 +94,7 @@
     };
 
 })( jQuery, window, document );
+
+$(function(){
+  $('body').socialSelect();
+});
