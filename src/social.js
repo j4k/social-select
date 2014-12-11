@@ -14,7 +14,7 @@
         validAncestors: ['body'],
         twitterTpl: "https://twitter.com/intent/tweet?text="{{text}}"&url={{url}}",
         twitterMessageLimit: 140,
-        emailHrefTemplate: "mailto:?subject={{subject}}&body="{{selection}}" {{url}}'
+        emailHrefTemplate: "mailto:?subject={{subject}}&body="{{selection}}" {{url}}'"
     };
 
     // Set up vars
