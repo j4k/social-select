@@ -3,6 +3,7 @@
     // Create the defaults once
     var pluginName = "socialSelect",
         defaults = {
+          container: 'body',
           validAncestors: ['article', 'section'],
           twitterTpl: "https://twitter.com/intent/tweet?text={{text}}&url={{url}}",
           twitterMessageLimit: 140,
@@ -14,7 +15,7 @@
         $twitterEl,
         $emailEl,
         // the template element
-        $selectionSharing = '<div>SocialSharingDiv</div>';
+        $selectionSharing = '<div class="social-sharing">SocialSharingDiv</div>';
 
     function SocialSelect( element, options ) {
         this.element = element;
@@ -23,25 +24,13 @@
 
         this._defaults = defaults;
         this._name = pluginName;
-
-        this.init();
-    }
-
-    SocialSelect.prototype = {
       
-        init: function() {
-           if( !this.hasTouchScreen() ) {
-                $body.append($selectionSharing);
-                $twitterEl = $('');
-                $emailEl = $('');
-                // set binds
-                $('body').on('keypress keydown', _.debounce( this.updateSelection, 50) ); 
-                $('body').on('mouseup', _.debounce( this.updateSelection, 200) );
-                $('body').on('mousedown', _.debounce( this.updateSelection, 50) );
-           }
-        },
-
-        updateSelection: function(el, options) {
+        this.hasTouchScreen = (function(){
+          return false;
+        })();
+      
+        this.updateSelection = function(el, options){
+           // https://developer.mozilla.org/en-US/docs/Web/API/document.createRange
            var selection = window.getSelection && document.createRange && window.getSelection(),
                range,
                twitterMessage,
@@ -51,35 +40,53 @@
            if( selection && selection.rangeCount > 0 && selection.toString() ){
                range = selection.getRangeAt(0);
                twitterMessage = range.toString();
-              
-                console.log(twitterMessage);
-             
-               if( !this.isValidSelection(range) ){
-                  this.hideSelection()
-                  return;
-               }
-           }
-        },
-
-        isValidSelection: function( range ){
-            console.log( range );
-            // check whether or not we have a valid ancestor,
-            // check range
-            return true;
-        },
-
-        hideSelection: function(){
             
-            console.log('this');
-          //return true;
-        },
+               if( !isValidSelection(range) ){
+                  hideSelection();
+                  return;
+               } 
+                
+               showSelection( twitterMessage );  
+           }
+          
+        };
+      
+        var isValidSelection = function(range){
+          
+          return true;
+        };
+      
+        var hideSelection = function(){
+          if ($selectionSharing.hasClass('social-share--active')) {
+            $selectionSharing.removeClass('social-share--active');
+          }
+        };
+      
+        var showSelection = function(){
+          if (!$selectionSharing.hasClass('social-share--active')) {
+            $selectionSharing.removeClass('social-share--active');
+          }
+        };
+      
+        this.init();
+        
+    }
 
-        showSelection: function(){
-            return true;
-        },
-
-        hasTouchScreen: function(){
-            return false;
+    SocialSelect.prototype = {
+      
+        init: function() {
+          
+          var that = this;
+          
+          if( !that.hasTouchScreen ) {
+                // inject markup
+                $(this.options.container).append( $selectionSharing );
+                // set binds
+                $('body').on('keypress keydown', _.debounce( that.updateSelection, 50)); 
+                $('body').on('mouseup', _.debounce( that.updateSelection, 200));
+                $('body').on('mousedown', _.debounce( that.updateSelection, 50));
+           }
+          
         }
 
     };
@@ -94,7 +101,3 @@
     };
 
 })( jQuery, window, document );
-
-$(function(){
-  $('body').socialSelect();
-});
