@@ -18,6 +18,9 @@
         $selectionSharing = '<div class="social-sharing">SocialSharingDiv</div>';
 
     function SocialSelect( element, options ) {
+        // todo: fixme
+        var that = this;
+      
         this.element = element;
 
         this.options = $.extend( {}, defaults, options) ;
@@ -30,6 +33,8 @@
         })();
       
         this.updateSelection = function(el, options){
+           var that = that;
+          
            // https://developer.mozilla.org/en-US/docs/Web/API/document.createRange
            var selection = window.getSelection && document.createRange && window.getSelection(),
                range,
@@ -45,15 +50,22 @@
                   hideSelection();
                   return;
                } 
-                
-               showSelection( twitterMessage );  
+
+             
+               showSelection();
            }
           
         };
       
         var isValidSelection = function(range){
           
-          return true;
+          var options = that.options;
+          
+          var parent = range.commonAncestorContainer.nodeName === '#text' ?
+              range.commonAncestorContainer.parentElement : range.commonAncestorContainer;
+          
+          return $(parent).closest( options.validAncestors.join(',') ).length ? true : false;
+          
         };
       
         var hideSelection = function(){
@@ -67,7 +79,7 @@
             $selectionSharing.removeClass('social-share--active');
           }
         };
-      
+        
         this.init();
         
     }
@@ -80,14 +92,15 @@
           
           if( !that.hasTouchScreen ) {
                 // inject markup
-                $(this.options.container).append( $selectionSharing );
+                $(that.options.container).append( $selectionSharing );
                 // set binds
                 $('body').on('keypress keydown', _.debounce( that.updateSelection, 50)); 
                 $('body').on('mouseup', _.debounce( that.updateSelection, 200));
                 $('body').on('mousedown', _.debounce( that.updateSelection, 50));
-           }
           
-        }
+          }
+          
+       }
 
     };
 
@@ -101,3 +114,7 @@
     };
 
 })( jQuery, window, document );
+
+$(function(){
+  $('body').socialSelect();
+});
