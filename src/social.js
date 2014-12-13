@@ -1,6 +1,6 @@
 ;(function ( $, window, document, undefined ) {
 
-    // Create the defaults once
+    // Defaults
     var pluginName = "socialSelect",
         defaults = {
           container: 'body',
@@ -15,7 +15,7 @@
         $twitterEl,
         $emailEl,
         // the template element
-        $selectionSharing = '<div class="social-sharing">SocialSharingDiv</div>';
+        $selectionSharing = $('<div class="social-sharing">SocialSharingDiv</div>');
 
     function SocialSelect( element, options ) {
         // todo: fixme
@@ -32,9 +32,10 @@
           return false;
         })();
       
-        this.updateSelection = function(el, options){
-           var that = that;
-          
+        this.updateSelection = function(ev){
+           console.log('update');
+           console.log(this);
+
            // https://developer.mozilla.org/en-US/docs/Web/API/document.createRange
            var selection = window.getSelection && document.createRange && window.getSelection(),
                range,
@@ -45,14 +46,16 @@
            if( selection && selection.rangeCount > 0 && selection.toString() ){
                range = selection.getRangeAt(0);
                twitterMessage = range.toString();
-            
+                
+               // truncate twitterMessage if applicable
+
                if( !isValidSelection(range) ){
                   hideSelection();
                   return;
                } 
-
              
                showSelection();
+
            }
           
         };
@@ -91,13 +94,12 @@
           var that = this;
           
           if( !that.hasTouchScreen ) {
-                // inject markup
-                $(that.options.container).append( $selectionSharing );
-                // set binds
-                $('body').on('keypress keydown', _.debounce( that.updateSelection, 50)); 
-                $('body').on('mouseup', _.debounce( that.updateSelection, 200));
-                $('body').on('mousedown', _.debounce( that.updateSelection, 50));
-          
+              // inject markup
+              $(that.options.container).append( $selectionSharing );
+              // set binds
+              //$('body').on('keypress keydown', _.debounce( that.updateSelection, 50)); 
+              $('body').on('mouseup', _.debounce( $.proxy( this, 'updateSelection'), 200));
+              $('body').on('mousedown', _.debounce( $.proxy( this, 'updateSelection'), 50));
           }
           
        }
@@ -115,6 +117,3 @@
 
 })( jQuery, window, document );
 
-$(function(){
-  $('body').socialSelect();
-});
