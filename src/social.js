@@ -5,7 +5,7 @@
         defaults = {
           container: 'body',
           validAncestors: ['article', 'section'],
-          twitterTpl: "https://twitter.com/intent/tweet?text={{text}}&url={{url}}",
+          twitterTpl: "https://twitter.com/intent/tweet?text={{twitterMessage}}&url={{url}}",
           twitterMessageLimit: 140,
           emailHrefTemplate: "mailto:?subject={{subject}}&body={{selection}} {{url}}'"
         };
@@ -15,7 +15,7 @@
         $twitterEl,
         $emailEl,
         // the template element
-        $selectionSharing = $('<div class="social-sharing"><a href="" class="js-social-twitter">Twitter</a><a href="" class="js-social-email">Email</a></div>');
+        $selectionSharing = $('<div class="social-sharing"><a href="" target="_blank" class="js-social-twitter">Twitter</a><a href="" class="js-social-email">Email</a></div>');
 
     function SocialSelect( element, options ) {
 
@@ -33,7 +33,7 @@
         })();
       
         this.updateSelection = function(ev){
-           // https://developer.mozilla.org/en-US/docs/Web/API/document.createRange
+
            var selection = window.getSelection && document.createRange && window.getSelection(),
                range,
                twitterMessage,
@@ -45,9 +45,12 @@
                twitterMessage = range.toString();
                
                // truncate twitterMessage if applicable
-               twitterMessage = twitterMessage > this.options.twitterMesssageLimit ?
+               this.options.twitterMessage = twitterMessage > this.options.twitterMesssageLimit ?
                                 twitterMessage.substring(0, this.options.twitterMessageLimit) :
                                 twitterMessage;
+                
+               this.options.subject = "test subject";
+               this.options.selection = selection;
 
                // validate selection
                if( !isValidSelection(range) ){
@@ -61,7 +64,11 @@
                    top: bounds.top - $selectionSharing.height(),
                    left: (bounds.left + (bounds.width / 2))
                });
-              
+
+               // update the urls on the share buttons 
+               $('.js-social-twitter').attr('href', this.template(this.options.twitterTpl));
+               $('.js-social-mail').attr('href', this.template(this.options.emailHrefTemplate));
+               
                showSelection();
 
            }
@@ -102,12 +109,24 @@
               // set binds
               //$('body').on('keypress keydown', _.debounce( that.updateSelection, 50)); 
               $(this.options.container).on('mouseup', _.debounce( $.proxy( this, 'updateSelection'), 200));
-              $(this.options.container).on('mousedown', _.debounce( $.proxy( this, 'updateSelection'), 50));
+              $(this.options.container).on('mousedown', _.debounce( $.proxy( this, 'updateSelection'), 200));
+              // set url
+              this.options.url = window.location.href;
           }
        },
 
        template: function(template) {
-          var re = /(?:{{2})([a-z]+)(?:}{2})/g;
+          var re = /(?:{{2})([a-zA-Z]+)(?:}{2})/g,
+              match,
+              string = template;
+
+          while ( match = re.exec( template ) ) {
+            // these lines iterate over the template strings, and replace the {{ }} bit with the matching
+            // option variable
+            template = template.replace( match[0], encodeURIComponent( this.options[ match[1] ]));
+          }
+            
+          return template;
        }
 
     };
