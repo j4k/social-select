@@ -15,10 +15,10 @@
         $twitterEl,
         $emailEl,
         // the template element
-        $selectionSharing = $('<div class="social-sharing">SocialSharingDiv</div>');
+        $selectionSharing = $('<div class="social-sharing"><a href="" class="js-social-twitter">Twitter</a><a href="" class="js-social-email">Email</a></div>');
 
     function SocialSelect( element, options ) {
-        // todo: fixme
+
         var that = this;
       
         this.element = element;
@@ -29,13 +29,10 @@
         this._name = pluginName;
       
         this.hasTouchScreen = (function(){
-          return false;
+          return 'ontouchstart' in window || navigator.mxMaxTouchPoints;
         })();
       
         this.updateSelection = function(ev){
-           console.log('update');
-           console.log(this);
-
            // https://developer.mozilla.org/en-US/docs/Web/API/document.createRange
            var selection = window.getSelection && document.createRange && window.getSelection(),
                range,
@@ -46,14 +43,25 @@
            if( selection && selection.rangeCount > 0 && selection.toString() ){
                range = selection.getRangeAt(0);
                twitterMessage = range.toString();
-                
+               
                // truncate twitterMessage if applicable
+               twitterMessage = twitterMessage > this.options.twitterMesssageLimit ?
+                                twitterMessage.substring(0, this.options.twitterMessageLimit) :
+                                twitterMessage;
 
+               // validate selection
                if( !isValidSelection(range) ){
                   hideSelection();
                   return;
                } 
-             
+                
+               var bounds = range.getBoundingClientRect();
+               // position the el 
+               $selectionSharing.css({
+                   top: bounds.top - $selectionSharing.height(),
+                   left: (bounds.left + (bounds.width / 2))
+               });
+               
                showSelection();
 
            }
@@ -79,7 +87,7 @@
       
         var showSelection = function(){
           if (!$selectionSharing.hasClass('social-share--active')) {
-            $selectionSharing.removeClass('social-share--active');
+            $selectionSharing.addClass('social-share--active');
           }
         };
         
@@ -102,6 +110,10 @@
               $('body').on('mousedown', _.debounce( $.proxy( this, 'updateSelection'), 50));
           }
           
+       },
+
+       template: function(template) {
+          console.log('template called');
        }
 
     };
