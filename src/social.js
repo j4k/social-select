@@ -61,7 +61,7 @@
                    top: bounds.top - $selectionSharing.height(),
                    left: (bounds.left + (bounds.width / 2))
                });
-               
+              
                showSelection();
 
            }
@@ -69,14 +69,12 @@
         };
       
         var isValidSelection = function(range){
-          
           var options = that.options;
           
           var parent = range.commonAncestorContainer.nodeName === '#text' ?
               range.commonAncestorContainer.parentElement : range.commonAncestorContainer;
           
           return $(parent).closest( options.validAncestors.join(',') ).length ? true : false;
-          
         };
       
         var hideSelection = function(){
@@ -98,22 +96,18 @@
     SocialSelect.prototype = {
       
         init: function() {
-          
-          var that = this;
-          
-          if( !that.hasTouchScreen ) {
+          if( !this.hasTouchScreen ) {
               // inject markup
-              $(that.options.container).append( $selectionSharing );
+              $(this.options.container).append( $selectionSharing );
               // set binds
               //$('body').on('keypress keydown', _.debounce( that.updateSelection, 50)); 
-              $('body').on('mouseup', _.debounce( $.proxy( this, 'updateSelection'), 200));
-              $('body').on('mousedown', _.debounce( $.proxy( this, 'updateSelection'), 50));
+              $(this.options.container).on('mouseup', _.debounce( $.proxy( this, 'updateSelection'), 200));
+              $(this.options.container).on('mousedown', _.debounce( $.proxy( this, 'updateSelection'), 50));
           }
-          
        },
 
        template: function(template) {
-          console.log('template called');
+          var re = /(?:{{2})([a-z]+)(?:}{2})/g;
        }
 
     };
