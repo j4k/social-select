@@ -6,7 +6,10 @@
           container: 'body',
           validAncestors: ['article', 'section'],
           twitterTpl: "https://twitter.com/intent/tweet?text={{twitterMessage}}&url={{url}}",
-          twitterMessageLimit: 140,
+          twitterMessageLimit: (function(){
+            // allow a space between the url and the text
+            return 139 - window.location.href.length;
+          })(),
           emailHrefTemplate: "mailto:?subject={{subject}}&body={{selection}} {{url}}'"
         };
 
@@ -33,7 +36,6 @@
         })();
       
         this.updateSelection = function(ev){
-
            var selection = window.getSelection && document.createRange && window.getSelection(),
                range,
                twitterMessage,
@@ -67,10 +69,9 @@
 
                // update the urls on the share buttons 
                $('.js-social-twitter').attr('href', this.template(this.options.twitterTpl));
-               $('.js-social-mail').attr('href', this.template(this.options.emailHrefTemplate));
+               $('.js-social-email').attr('href', this.template(this.options.emailHrefTemplate));
                
                showSelection();
-
            }
           
         };
