@@ -15,10 +15,11 @@
 
     // Set up vars
     var $body = $(document.body),
-        $twitterEl,
-        $emailEl,
         // the template element
-        $selectionSharing = $('<div class="social-sharing"><a href="" target="_blank" class="js-social-twitter">Twitter</a><a href="" class="js-social-email">Email</a></div>');
+        $selectionSharing = $('<div class="social-sharing" aria-role="menu" aria-label="Share Selection" aria-hidden="true" tabindex="-1">'+
+                              '<a href="" target="_blank" class="js-social-twitter" aria-role="menuitem" tabindex="-1">Twitter</a>' +
+                              '<a href="" class="js-social-email" aria-role="menuitem" tabindex="-1">Email</a>' +
+                              '</div>');
 
     function SocialSelect( element, options ) {
 
@@ -59,7 +60,7 @@
                   hideSelection();
                   return;
                } 
-                
+
                var bounds = range.getBoundingClientRect();
                // position the el 
                $selectionSharing.css({
@@ -68,10 +69,15 @@
                });
 
                // update the urls on the share buttons 
-               $('.js-social-twitter').attr('href', this.template(this.options.twitterTpl));
-               $('.js-social-email').attr('href', this.template(this.options.emailHrefTemplate));
+               $('.js-social-twitter').attr('href', this.template( this.options.twitterTpl) );
+               $('.js-social-email').attr('href', this.template( this.options.emailHrefTemplate) );
                
                showSelection();
+
+           } else {
+
+               hideSelection();
+
            }
           
         };
@@ -88,12 +94,14 @@
         var hideSelection = function(){
           if ($selectionSharing.hasClass('social-share--active')) {
             $selectionSharing.removeClass('social-share--active');
+            $selectionSharing.attr({'aria-hidden': true, 'tabindex': -1}).find('a').attr('tabindex', -1);
           }
         };
       
         var showSelection = function(){
           if (!$selectionSharing.hasClass('social-share--active')) {
             $selectionSharing.addClass('social-share--active');
+            $selectionSharing.attr({'aria-hidden': false, 'tabindex': 1}).find('a').attr('tabindex', 0);
           }
         };
         
@@ -118,8 +126,7 @@
 
        template: function(template) {
           var re = /(?:{{2})([a-zA-Z]+)(?:}{2})/g,
-              match,
-              string = template;
+              match;
 
           while ( match = re.exec( template ) ) {
             // these lines iterate over the template strings, and replace the {{ }} bit with the matching
