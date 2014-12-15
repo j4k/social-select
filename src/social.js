@@ -45,11 +45,11 @@
                twitterMessage = range.toString();
                
                // truncate twitterMessage if applicable
-               this.options.twitterMessage = twitterMessage > this.options.twitterMesssageLimit ?
+               this.options.twitterMessage = twitterMessage.length > this.options.twitterMessageLimit ?
                                 twitterMessage.substring(0, this.options.twitterMessageLimit) :
                                 twitterMessage;
-                
-               this.options.subject = "test subject";
+              
+               this.options.subject = "Share from: " + window.location.href;
                this.options.selection = selection;
 
                // validate selection
