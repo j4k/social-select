@@ -21,6 +21,43 @@
                               '<a href="" class="js-social-email" aria-role="menuitem" tabindex="-1">Email</a>' +
                               '</div>');
 
+    // Debounce - underscore clone
+    var debounce = function(func, wait, immediate) {
+      var timeout, args, context, timestamp, result;
+      var now = Date.now || function() {
+        return new Date().getTime();
+      };
+       
+      var later = function() {
+        var last = now() - timestamp;
+         
+        if (last < wait && last >= 0) {
+          timeout = setTimeout(later, wait - last);
+        } else {
+          timeout = null;
+          if (!immediate) {
+            result = func.apply(context, args);
+            if (!timeout) context = args = null;
+          }
+        }
+      };
+     
+      return function() {
+        context = this;
+        args = arguments;
+        timestamp = now();
+        var callNow = immediate && !timeout;
+        if (!timeout) timeout = setTimeout(later, wait);
+        if (callNow) {
+        result = func.apply(context, args);
+        context = args = null;
+      }
+       
+        return result;
+      };
+    }; 
+
+
     function SocialSelect( element, options ) {
 
         var that = this;
@@ -117,8 +154,8 @@
               $(this.options.container).append( $selectionSharing );
               // set binds
               //$('body').on('keypress keydown', _.debounce( that.updateSelection, 50)); 
-              $(this.options.container).on('mouseup', _.debounce( $.proxy( this, 'updateSelection'), 200));
-              $(this.options.container).on('mousedown', _.debounce( $.proxy( this, 'updateSelection'), 200));
+              $(this.options.container).on('mouseup', debounce( $.proxy(this, 'updateSelection'), 200));
+              $(this.options.container).on('mousedown', debounce( $.proxy(this, 'updateSelection'), 200));
               // set url
               this.options.url = window.location.href;
           }
